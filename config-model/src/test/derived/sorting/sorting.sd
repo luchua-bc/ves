@@ -1,0 +1,118 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema sorting {
+
+  document sorting {
+
+    field syntaxcheck1a type string {
+      indexing: attribute
+      attribute {
+        sorting: ascending
+        sorting: function: uca
+        sorting: strength: primary
+        sorting: locale: en_US
+      }
+    }
+    field syntaxcheck2a type string {
+      indexing: attribute
+      attribute {
+        sorting: descending
+        sorting: function: raw
+        sorting: strength: secondary
+      }
+    }
+    field syntaxcheck3a type string {
+      indexing: attribute
+      attribute {
+        sorting: ascending
+        sorting: function: lowercase
+        sorting: strength: tertiary
+      }
+    }
+    field syntaxcheck4a type string {
+      indexing: attribute
+      attribute {
+        sorting: descending
+        sorting: function: uca
+        sorting: strength: quaternary
+        sorting: locale: en_US
+      }
+    }
+    field syntaxcheck5a type string {
+      indexing: attribute
+      attribute {
+        sorting: ascending
+        sorting: function: raw
+        sorting: strength: identical
+      }
+    }
+
+    field syntaxcheck1b type string {
+      indexing: attribute
+      attribute {
+        sorting {
+          ascending
+          function: uca
+          strength: primary
+          locale: en_US
+        }
+      }
+    }
+
+
+    field syntaxcheck2b type string {
+      indexing: attribute
+      attribute {
+        sorting {
+          descending
+          function: raw
+          strength: secondary
+        }
+      }
+    }
+
+    field syntaxcheck3b type string {
+      indexing: attribute
+      attribute {
+        sorting {
+          ascending
+          function: lowercase
+          strength: tertiary
+        }
+      }
+    }
+
+    field syntaxcheck4b type string {
+      indexing: attribute
+      attribute {
+        sorting {
+          descending
+          function: uca
+          strength: quaternary
+          locale: en_US
+        }
+      }
+    }
+
+    field syntaxcheck5b type string {
+      indexing: attribute
+      attribute {
+        sorting {
+          ascending
+          function: raw
+          strength: identical
+        }
+      }
+    }
+
+    field infieldonly type string {
+      indexing: attribute
+      sorting {
+        descending
+        function: lowercase
+        strength: secondary
+        locale: en_US
+      }
+    }
+  }
+
+}

@@ -1,0 +1,53 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+# Configuration of dispatch from container nodes to search clusters
+
+namespace=vespa.config.search
+
+## The active docs a group must have as a % of the average active docs of all other groups,
+## for that group to be included in queries
+minActivedocsPercentage double default=97.0
+
+## Distribution policy for group selection
+distributionPolicy enum { ROUNDROBIN, BEST_OF_RANDOM_2, LATENCY_AMORTIZED_OVER_REQUESTS, LATENCY_AMORTIZED_OVER_TIME, ADAPTIVE } default=ADAPTIVE
+
+## Maximum number of hits that will be requested from a single node
+## in this dataset. If not set, there is no limit. Using this option
+## may help reduce network traffic when searching in datasets with big
+## fan-out, but it will also result in incorrect and incomplete results;
+## don't use it if you don't (really) mean it.
+maxHitsPerNode int default=2147483647
+
+## Probability for getting the K best hits (topK).
+## A value of 1.0 will ask all N partitions for K hits.
+## Any value between <0, 1> will use a Student T with 30 degrees freedom and compute a value Q that
+## will give you the globally K best hits according to this formula with the desired probability.
+## q = k/n + qT (p',30) x √(k × (1/n) × (1 − 1/n))
+## With a probability of 0.999 and K=200 and N=10 will give a Q of 38, meaning that you only need to fetch 19% compared to
+## a setting of 1.0. This is a significant optimisation with with very little loss in presicion.
+topKProbability double default=0.9999
+
+## Number of document replicas _per group_ that will be present in a stable cluster.
+## Should always be >= searchableCopies.
+redundancy long default=1
+
+## Minimum search coverage required before returning the results of a query
+minSearchCoverage double default=100
+
+## Minimum wait time for full coverage after minimum coverage is achieved, factored based on time left at minimum coverage
+minWaitAfterCoverageFactor double default=0
+
+## Maximum wait time for full coverage after minimum coverage is achieved, factored based on time left at minimum coverage
+maxWaitAfterCoverageFactor double default=1
+
+## Number of JRT transport threads
+numJrtTransportThreads int default=8
+
+## Number of JRT connections per backend node
+numJrtConnectionsPerNode int default=8
+
+## Number of seconds to spend warming up code to prevent JIT cold start issues.
+warmuptime double default=0.1
+
+## Specifies how summary data are decoded
+## Eager will build java objects immediately, while ONDEMAND will do so when it is needed
+summaryDecodePolicy enum {EAGER, ONDEMAND} default=EAGER

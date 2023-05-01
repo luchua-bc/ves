@@ -1,0 +1,33 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema gemini {
+
+    document gemini {
+        field right type string {
+            indexing: attribute
+        }
+        field wrong type string {
+            indexing: attribute
+        }
+    }
+
+    rank-profile test {
+
+        function wrapper2(x) {
+            expression: x
+        }
+
+		function wrapper1(x) {
+			expression: wrapper2(x)
+		}
+
+        function toplevel() {
+            expression: wrapper1(attribute(right))
+        }
+
+        function interfering() {
+            expression: wrapper1(attribute(wrong))
+        }
+
+    }
+
+}

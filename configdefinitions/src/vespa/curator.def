@@ -1,0 +1,12 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=cloud.config
+
+# hostname and port of servers that curator will connect to
+server[].hostname string
+server[].port int default=2181
+
+# if true, only connect to server on localhost (must be in one of the servers above)
+zookeeperLocalhostAffinity bool default=false
+
+# session timeout, the high default is used by config servers
+zookeeperSessionTimeoutSeconds int default=120

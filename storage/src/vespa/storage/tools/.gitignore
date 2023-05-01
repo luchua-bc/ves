@@ -1,0 +1,12 @@
+*.So
+*core
+.*.swp
+.depend
+Makefile
+distbitreport.html
+generatedistributionbits
+getidealstate
+idealstate
+vespa-storage-cmd
+storage_generatedistributionbits_app
+storage_getidealstate_app

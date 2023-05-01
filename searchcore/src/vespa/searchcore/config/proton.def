@@ -1,0 +1,548 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=vespa.config.search.core
+
+## Base directory. The default is ignored as it is assigned by the model
+basedir       string default="." restart
+
+## Port to use for the rpcserver.
+rpcport       int default=8004 restart
+
+## Port to use for the web server
+httpport       int default=0 restart
+
+## Cluster name
+clustername	string default="" restart
+
+## Distribution key
+distributionkey int default=-1
+
+## Number of threads used for rpc transport threads
+## A zero value will make the backend smart about the number.
+rpc.transportthreads int default=0 restart
+
+## Dispatch search requests to threadpool
+search.async bool default=true
+
+## Dispatch docsum requests to threadpool
+docsum.async bool default=true
+
+## Num searcher threads
+numsearcherthreads int default=64 restart
+
+## Number of threads used per search
+numthreadspersearch int default=1 restart
+
+## Num summary threads
+numsummarythreads int default=16 restart
+
+## Perform extra validation of stored data on startup
+## It requires a restart to enable, but no restart to disable.
+## Hence it must always be followed by a manual restart when enabled.
+validate_and_sanitize_docstore enum {NO, YES} default = NO
+
+## Maximum number of concurrent flushes outstanding.
+flush.maxconcurrent int default=2 restart
+
+## Number of seconds between checking for stuff to flush when the system is idling.
+flush.idleinterval double default=10.0 restart
+
+## Which flushstrategy to use.
+flush.strategy enum {SIMPLE, MEMORY} default=MEMORY restart
+
+## The total maximum memory (in bytes) used by FLUSH components before running flush.
+## A FLUSH component will free memory when flushed (e.g. memory index).
+flush.memory.maxmemory long default=4294967296
+
+## Maximum total disk bloat factor before forcing flush.
+flush.memory.diskbloatfactor double default=0.25
+
+## Max disk usage (in bytes) for all transaction logs before running flush.
+## In this case the oldest component is flushed such that transaction log can be pruned and disk freed.
+flush.memory.maxtlssize long default=21474836480
+
+## The maximum memory (in bytes) used by a single FLUSH component before running flush.
+## A FLUSH component will free memory when flushed (e.g. memory index).
+flush.memory.each.maxmemory long default=1073741824
+
+## Maximum disk bloat factor per component before forcing flush.
+flush.memory.each.diskbloatfactor double default=0.25
+
+## Age of unflushed content before forcing age prioritization.
+## Unit is seconds with 31 hours being the default.
+## 31 is selected as it is both a prime and (31-24=7) is a prime and hence it will
+## not be closer to a multiple of a day for a month, and it will be at least one hour away.
+flush.memory.maxage.time double default=111600.0
+
+## When resource limit for memory is reached we choose a conservative mode for the flush strategy.
+## In this case this factor is multiplied with 'maxmemory' and 'each.maxmemory' to calculate conservative values to use instead.
+flush.memory.conservative.memorylimitfactor double default=0.5
+
+## When resource limit for disk is reached we choose a conservative mode for the flush strategy.
+## In this case this factor is multiplied with 'maxtlssize' to calculate a conservative value to use instead.
+flush.memory.conservative.disklimitfactor double default=0.5
+
+## The factor used to multiply with the resource limits for disk / memory to find the high
+## watermark indicating when to from normal into conservative mode for the flush strategy.
+flush.memory.conservative.highwatermarkfactor double default=0.95
+
+## The factor used to multiply with the resource limits for disk / memory to find the low
+## watermark indicating when to go back from conservative to normal mode for the flush strategy.
+flush.memory.conservative.lowwatermarkfactor double default=0.9
+
+## The cost of replaying a byte when replaying the transaction log.
+##
+## The estimate of the total cost of replaying the transaction log:
+## (number of bytes to replay) * replaycost + (number of operations to replay) * replayoperationcost
+##
+## The prepare for restart flush strategy will choose a set of components to flush
+## such that the cost of flushing these + the cost of replaying the transaction log
+## is as low as possible.
+flush.preparerestart.replaycost double default=8.0
+
+## The cost of replaying an operation when replaying the transaction log.
+##
+## The estimate of the total cost of replaying the transaction log:
+## (number of bytes to replay) * replaycost + (number of operations to replay) * replayoperationcost
+##
+## The default value is chosen based on the following example:
+## Assume we can replay 9 MB/s and this corresponds to 24000 ops/s.
+## replayoperationcost = (bytes to replay) * replaycost / (operations to replay) = 9 MB * 8.0 / 24000 = 3000
+##
+## The prepare for restart flush strategy will choose a set of components to flush
+## such that the cost of flushing these + the cost of replaying the transaction log
+## is as low as possible.
+flush.preparerestart.replayoperationcost double default=3000.0
+
+## The cost of writing a byte when flushing components to disk.
+##
+## The number of bytes to write (for a set of flushed components) * writecost
+## gives an estimate of the total cost of flushing this set of components.
+##
+## The prepare for restart flush strategy will choose a set of components to flush
+## such that the cost of flushing these + the cost of replaying the transaction log
+## is as low as possible.
+flush.preparerestart.writecost double default=1.0
+
+## Control io options during write both under dump and fusion.
+indexing.write.io enum {NORMAL, OSYNC, DIRECTIO} default=DIRECTIO restart
+
+## Control io options during read both under dump and fusion.
+indexing.read.io enum {NORMAL, DIRECTIO} default=DIRECTIO restart
+
+## Option to specify what is most important during indexing.
+## This is experimental and will most likely be temporary.
+indexing.optimize enum {LATENCY, THROUGHPUT, ADAPTIVE} default=THROUGHPUT restart
+
+## Maximum number of pending operations for each of the internal
+## indexing threads.  Only used when visibility delay is zero.
+indexing.tasklimit int default=-1000
+
+## Kind of watermark for when to activate extra manpower
+## Utilized if optimize is set to either THROUGHPUT or ADAPTIVE
+indexing.kind_of_watermark int default = 0 restart
+
+## Controls minimum reaction time in seconds if using THROUGHPUT
+indexing.reactiontime double default = 0.001 restart
+
+## How long a freshly loaded index shall be warmed up
+## before being used for serving
+index.warmup.time double default=0.0 restart
+
+# Indicate if we also want warm up with full unpack, instead of only cheaper seek.
+index.warmup.unpack bool default=false restart
+
+## How many flushed indexes there can be before fusion is forced while node is
+## not in retired state.
+## Setting to 1 will force an immediate fusion.
+index.maxflushed int default=2
+
+## How many flushed indexes there can be before fusion is forced while node is
+## in retired state.
+## Setting to 1 will force an immediate fusion.
+index.maxflushedretired int default=20
+
+## Control io options during flushing of attributes.
+attribute.write.io enum {NORMAL, OSYNC, DIRECTIO} default=DIRECTIO restart
+
+## Multiple optional options for use with mmap
+search.mmap.options[] enum {POPULATE, HUGETLB} restart
+
+## Advise to give to os when mapping memory.
+## TODO Check if default should be random
+search.mmap.advise enum {NORMAL, RANDOM, SEQUENTIAL} default=NORMAL restart
+
+## Max number of threads allowed to handle large queries concurrently
+## Positive number means there is a limit, 0 or negative means no limit.
+## TODO Check if ever used in config.
+search.memory.limiter.maxthreads int default=0
+
+## Minimum coverage of corpus to postprocess before applying above concurrency limit.
+search.memory.limiter.mincoverage double default=1.0
+
+## Minimum number of hits to postprocess before applying above concurrency limit.
+## Both must be covered before applying limiter.
+search.memory.limiter.minhits int default=1000000
+
+## Control of grouping session manager entries
+grouping.sessionmanager.maxentries int default=500 restart
+
+## Control of pruning interval to remove sessions that have timed out
+grouping.sessionmanager.pruning.interval double default=1.0
+
+## Redundancy of documents.
+distribution.redundancy long default=1
+
+## Searchable copies of the documents.
+distribution.searchablecopies long default=1
+
+## Control cache size in bytes.
+## Postive numbers are absolute in bytes.
+## Negative numbers are a percentage of memory.
+summary.cache.maxbytes long default=-4
+
+## Control compression type of the summary while in the cache.
+summary.cache.compression.type enum {NONE, LZ4, ZSTD} default=LZ4
+
+## Control compression level of the summary while in cache.
+## LZ4 has normal range 1..9 while ZSTD has range 1..19
+## 6 is a default for lz4 to prioritize speed.
+summary.cache.compression.level int default=6
+
+## Control if cache entry is updated or ivalidated when changed.
+summary.cache.update_strategy enum {INVALIDATE, UPDATE} default=INVALIDATE
+
+## Control compression type of the summary while in memory during compaction
+## NB So far only stragey=LOG honours it.
+## TODO Use same as for store (chunk.compression).
+summary.log.compact.compression.type enum {NONE, LZ4, ZSTD} default=ZSTD
+
+## Control compression level of the summary while in memory during compaction
+## LZ4 has normal range 1..9 while ZSTD has range 1..19
+## 9 is a reasonable default for both
+summary.log.compact.compression.level int default=9
+
+## Control compression type of the summary
+summary.log.chunk.compression.type enum {NONE, LZ4, ZSTD} default=ZSTD
+
+## Control compression level of the summary
+## LZ4 has normal range 1..9 while ZSTD has range 1..19
+## 9 is a reasonable default for both. Going above for ZSTD can give an improvement,
+## but is better done in conjunction with increasing chunk size.
+summary.log.chunk.compression.level int default=9
+
+## Max size in bytes per chunk.
+summary.log.chunk.maxbytes int default=65536
+
+## Max size per summary file.
+summary.log.maxfilesize long default=1000000000
+
+## Max number of lid entries per file
+## TODO Decide based on memory on node.
+summary.log.maxnumlids int default=40000000
+
+## Max disk bloat factor. This will trigger compacting.
+summary.log.maxdiskbloatfactor double default=0.1
+
+## Max bucket spread within a single summary file. This will trigger bucket order compacting.
+summary.log.maxbucketspread double default=2.5
+
+## If a file goes below this ratio compared to allowed max size it will be joined to the front.
+## Value in the range [0.0, 1.0]
+summary.log.minfilesizefactor double default=0.2
+
+## Control io options during flush of stored documents.
+summary.write.io enum {NORMAL, OSYNC, DIRECTIO} default=DIRECTIO
+
+## Control io options during read of stored documents.
+## All summary.read options will take effect immediately on new files written.
+## On old files it will take effect either upon compact or on restart.
+## TODO Default is probably DIRECTIO
+summary.read.io enum {NORMAL, DIRECTIO, MMAP } default=MMAP restart
+
+## Multiple optional options for use with mmap
+summary.read.mmap.options[] enum {POPULATE, HUGETLB} restart
+
+## Advise to give to os when mapping memory.
+summary.read.mmap.advise enum {NORMAL, RANDOM, SEQUENTIAL} default=NORMAL restart
+
+## The name of the input document type
+documentdb[].inputdoctypename string
+## The type of the documentdb
+documentdb[].mode enum {INDEX, STREAMING, STORE_ONLY} default=INDEX
+## The configid used to subscribe to config for this database.
+documentdb[].configid string
+## How many seconds is allowed from document is received to it is visible in the index.
+documentdb[].visibilitydelay double default=0.0
+## Whether this document type is globally distributed or not.
+documentdb[].global bool default=false
+
+## Minimum initial size for any per document tables.
+documentdb[].allocation.initialnumdocs long default=1024
+## Grow factor for any per document tables.
+documentdb[].allocation.growfactor double default=0.2
+## Constant added when growing any per document tables.
+documentdb[].allocation.growbias int default=1
+
+## The number of documents to amortize memory spike cost over
+documentdb[].allocation.amortizecount int default=10000
+
+## The grow factor used when allocating buffers in the array store
+## used in multi-value attribute vectors to store underlying values.
+documentdb[].allocation.multivaluegrowfactor double default=0.2
+
+## The ratio of used bytes that can be dead before attempting to perform compaction.
+documentdb[].allocation.max_dead_bytes_ratio double default=0.05
+
+## The ratio of used address space that can be dead before attempting to perform compaction.
+documentdb[].allocation.max_dead_address_space_ratio double default=0.2
+
+## Upper bound for number of buffers that can be compacted at the same time in
+## a data store for a specific reason (e.g. memory used, address space used).
+documentdb[].allocation.max_compact_buffers int default=1
+
+## Ratio of active buffers that can be compacted at the same time in a data
+## store for a specific reason (e.g. memory used, address space used).
+## Effective limit is ceil(active_buffers * active_buffers_ratio).
+documentdb[].allocation.active_buffers_ratio double default=0.1
+
+## The interval of when periodic tasks should be run
+periodic.interval double default=3600.0
+
+## Connect spec for transactionlog server.
+## TODO Consider not using RPC at all
+tlsspec       string default="tcp/localhost:13700" restart
+
+## ConfigId for transactionlogserver
+tlsconfigid   string default="" restart
+
+## Slobrok configid
+slobrokconfigid         string default="" restart
+
+## Routing configid
+routingconfigid         string default="" restart
+
+## filedistributor rpc configuration
+filedistributor.configid reference default="" restart
+
+## Interval between pruning of old removed documents.
+##
+## If set to 0 (default) the value is calculated as (pruneremoveddocumentsage / 100) (default 3.36 hours).
+pruneremoveddocumentsinterval double default=0.0
+
+## Age of removed document before it can be pruned.
+##
+## Default value is 2 weeks (1209600 seconds).
+pruneremoveddocumentsage double default=1209600.0
+
+## Minimum size of packets to compress (0 means no compression)
+##
+packetcompresslimit int default=1024
+
+## Compression level for packets
+##
+## Default value is 3
+packetcompresslevel int default=3
+
+## Compression type for packets
+##
+## Default is LZ4
+packetcompresstype enum {NONE, LZ4} default=LZ4
+
+## Interval between considering if lid space compaction should be done (in seconds).
+##
+## Default value is 10 seconds.
+lidspacecompaction.interval double default=10.0
+
+## The allowed lid bloat (in docs) before considering lid space compaction.
+##
+## When considering compaction the lid bloat is calculated as (docIdLimit - numDocs).
+## The lid bloat must be >= allowedlidbloat before considering compaction.
+lidspacecompaction.allowedlidbloat int default=1
+
+## The allowed lid bloat factor (relative) before considering lid space compaction.
+##
+## When considering compaction the lid bloat factor is calculated as (docIdLimit - numDocs)/docIdLimit.
+## The lid bloat factor must be >= allowedlidbloatfactor before considering compaction.
+lidspacecompaction.allowedlidbloatfactor double default=0.01
+
+## The rate (ops / second) of remove batch operations for when to block lid space compaction.
+##
+## When considering compaction, if the current observed rate of remove batch operations
+## is higher than the given block rate, the lid space compaction job is blocked.
+## It is considered again at the next regular interval (see above).
+##
+## Remove batch operations are used when deleting buckets on a content node.
+## This functionality ensures that during massive deleting of buckets (e.g. as part of redistribution of data to a new node),
+## lid space compaction do not interfere, but instead is applied after deleting of buckets is complete.
+lidspacecompaction.removebatchblockrate double default=0.5
+
+## The rate (ops / second) of remove operations for when to block lid space compaction.
+##
+## When considering compaction, if the current observed rate of remove operations
+## is higher than the given block rate, the lid space compaction job is blocked.
+## It is considered again at the next regular interval (see above).
+lidspacecompaction.removeblockrate double default=100.0
+
+## Maximum docs to move in single operation per bucket
+bucketmove.maxdocstomoveperbucket int default=1
+
+## This is the maximum value visibilitydelay you can have.
+## A to higher value here will cost more memory while not improving too much.
+maxvisibilitydelay double default=1.0
+
+## You can set this to a number above zero for visit to shortcut expensive serialize size computation.
+## This value will be provided instead.
+## negative number will compute it accurately.
+## This is only used for weakly consistent visiting, like streaming search.
+visit.defaultserializedsize long default=1
+
+## This will ignore the maxbytes limit advised from above.
+## This is only used for weakly consistent visiting, like streaming search.
+visit.ignoremaxbytes bool default=true
+
+## Number of initializer threads used for loading structures from disk at proton startup.
+## The threads are shared between document databases when value is larger than 0.
+## When set to 0 (default) we use 1 separate thread per document database.
+## TODO Consider if really necessary, could be automatic.
+initialize.threads int default = 0
+
+## Portion of max address space used in components in attribute vectors
+## before put and update operations in feed is blocked.
+writefilter.attribute.address_space_limit double default = 0.92
+
+## Portion of physical memory that can be resident memory in anonymous mapping
+## by the proton process before put and update portion of feed is blocked.
+writefilter.memorylimit double default = 0.8
+
+## Portion of space on disk partition that can be used or reserved before
+## put and update portion of feed is blocked.
+writefilter.disklimit double default = 0.8
+
+## Interval between sampling of disk and memory usage. Default is 10 seconds.
+writefilter.sampleinterval double default = 10.0
+
+## The size of the disk partition (in bytes) on which proton basedir is located.
+## If set to 0, the disk size is sampled by looking at the filesystem space info.
+## The disk size is used when determining if feed should be blocked in writefilter.
+hwinfo.disk.size long default = 0 restart
+
+## Whether the disk partition is shared among several instances of proton (e.g. when using docker).
+## If shared, disk usage is sampled by doing a recursive directory scan in proton basedir.
+## If not, disk usage is sampled by looking at the filesystem space info.
+hwinfo.disk.shared bool default = false restart
+
+## Override for disk write speed, measured in MiB/s. When zero, the
+## actual disk write speed is sampled by writing data to a temporary file.
+hwinfo.disk.writespeed double default = 200.0 restart
+
+## Amount of data to write to temporary file when sampling disk write speed.
+## Default is 1 GiB.
+## TODO Check if still in use
+hwinfo.disk.samplewritesize long default = 1073741824 restart
+
+## Minimum write speed needed to avoid disk being considered slow.
+## Unit is MiB/s, default is 100.0 MiB/s.
+## TODO Check if still in use
+hwinfo.disk.slowwritespeedlimit double default = 100.0 restart
+
+## The size of physical memory (in bytes) available to proton.
+## If set to 0, the memory size is sampled as _SC_PHYS_PAGES * _SC_PAGESIZE by using sysconf to do the lookup.
+## The memory size is used when determining if feed should be blocked in writefilter.
+hwinfo.memory.size long default = 0 restart
+
+## The number of cores on the cpu.
+## If set to 0, this is sampled by using std::thread::hardware_concurrency().
+hwinfo.cpu.cores int default = 0 restart
+
+## A number between 0.0 and 1.0 that specifies the concurrency when handling feed operations.
+## When set to 1.0 all cores on the cpu is utilized.
+##
+## 3 thread pools used for various aspect of feeding are configured based on this setting:
+##   1) Basic shared thread pool. E.g. used for compressing and compacting documents.
+##   2) Warmup thread pool. Used for disk index warmup.
+##   3) Field writer thread pool. Used for writing data to document fields:
+##     - Inverting index fields
+##     - Writing changes to index fields
+##     - Writing changes to attribute fields
+##
+## See shared_threading_service_config.cpp for details on how the thread pool sizes are calculated.
+feeding.concurrency double default = 0.2 restart
+
+## A number between 0.0 and 1.0 telling how nice the feed and background threads shall be.
+## A value of 0.0, which is default, means 'not any nicer than anyone else'.
+## The scale from 0.0 to 1.0 is not linear. It is OS specific.
+feeding.niceness double default = 0.0 restart
+
+## Maximum number of pending tasks for the master thread in each document db.
+##
+## This limit is only considered when executing tasks for handling external feed operations.
+## In that case the calling thread (persistence thread) is blocked until the master thread has capacity to handle more tasks.
+## When this limit is set to 0 it is ignored.
+## TODO Check if still in use
+feeding.master_task_limit int default = 0
+
+## Adjustment to resource limit when determining if maintenance jobs can run.
+##
+## Currently used by 'lid_space_compaction' and 'move_buckets' jobs.
+maintenancejobs.resourcelimitfactor double default = 1.05
+
+## The max outstanding move operations a maintenance job can have before being blocked.
+##
+## The job is unblocked (and executed again) when this goes under the limit again.
+## Currently used by 'lid_space_compaction' job.
+maintenancejobs.maxoutstandingmoveops int default=100
+
+## Controls the type of bucket checksum used. Do not change unless 
+## in depth understanding is present.
+bucketdb.checksumtype enum {LEGACY, XXHASH64} default = LEGACY restart
+
+## Chooses the throttling policy used to control the window size
+## of the SharedOperationThrottler component used by the transaction log replay feed state.
+replay_throttling_policy.type enum { UNLIMITED, DYNAMIC } default=DYNAMIC
+## Only used if replay_throttling_policy.type == DYNAMIC:
+## TODO consider just hardcoding values as they have never been tuned.
+replay_throttling_policy.min_window_size int default=100
+replay_throttling_policy.max_window_size int default=10000
+replay_throttling_policy.window_size_increment int default=20
+
+## Everything below are deprecated and ignored. Will go away at any time.
+
+## Deprecated and ignored, will soon go away
+indexing.semiunboundtasklimit int default = 1000
+
+## Include visits in the cache, if the visitoperation allows it.
+## This will enable another separate cache of summary.cache.maxbytes size.
+## IGNORED and DEPRECATED Will go away soon
+summary.cache.allowvisitcaching bool default=true
+
+## Control number of cache entries preallocated.
+## Default is no preallocation.
+## Can be set to a higher number to avoid resizing.
+## IGNORED and DEPRECATED Will go away soon
+summary.cache.initialentries long default=0 restart
+
+## Skip crc32 check on read.
+## IGNORED and DEPRECATED Will go away soon
+summary.log.chunk.skipcrconread bool default=false
+
+## Overrides the number of threads used for writing fields across all document dbs.
+## See feeding.concurrency for details.
+## DEPRECATED - Remove usage
+indexing.threads int default=1 restart
+
+## How much memory is set aside for caching.
+## Now only used for caching of dictionary lookups.
+## TODO Still relevant, check config model, seems unused.
+index.cache.size long default=0 restart
+
+## Specifies which tensor implementation to use for all backend code.
+##
+## TENSOR_ENGINE (default) uses DefaultTensorEngine, which has been the production implementation for years.
+## FAST_VALUE uses the new and optimized FastValueBuilderFactory instead.
+## TODO: Remove when default has been switched to FAST_VALUE.
+tensor_implementation enum {TENSOR_ENGINE, FAST_VALUE} default = FAST_VALUE
+
+## Whether to report issues back to the container via protobuf field
+## TODO Remove always on
+forward_issues bool default = true
+

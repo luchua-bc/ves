@@ -1,0 +1,50 @@
+{
+  "ai.vespa.llm.generation.Generator" : {
+    "superClass" : "com.yahoo.component.AbstractComponent",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public void <init>(ai.vespa.modelintegration.evaluator.OnnxRuntime, com.yahoo.llm.GeneratorConfig)",
+      "public java.lang.String generate(java.lang.String, ai.vespa.llm.generation.GeneratorOptions)",
+      "public java.lang.String generate(java.lang.String)",
+      "public void deconstruct()"
+    ],
+    "fields" : [ ]
+  },
+  "ai.vespa.llm.generation.GeneratorOptions$SearchMethod" : {
+    "superClass" : "java.lang.Enum",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public",
+      "final",
+      "enum"
+    ],
+    "methods" : [
+      "public static ai.vespa.llm.generation.GeneratorOptions$SearchMethod[] values()",
+      "public static ai.vespa.llm.generation.GeneratorOptions$SearchMethod valueOf(java.lang.String)"
+    ],
+    "fields" : [
+      "public static final enum ai.vespa.llm.generation.GeneratorOptions$SearchMethod GREEDY",
+      "public static final enum ai.vespa.llm.generation.GeneratorOptions$SearchMethod CONTRASTIVE",
+      "public static final enum ai.vespa.llm.generation.GeneratorOptions$SearchMethod BEAM",
+      "public static final enum ai.vespa.llm.generation.GeneratorOptions$SearchMethod SAMPLE"
+    ]
+  },
+  "ai.vespa.llm.generation.GeneratorOptions" : {
+    "superClass" : "java.lang.Object",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public void <init>()",
+      "public ai.vespa.llm.generation.GeneratorOptions$SearchMethod getSearchMethod()",
+      "public ai.vespa.llm.generation.GeneratorOptions setSearchMethod(ai.vespa.llm.generation.GeneratorOptions$SearchMethod)",
+      "public int getMaxLength()",
+      "public ai.vespa.llm.generation.GeneratorOptions setMaxLength(int)"
+    ],
+    "fields" : [ ]
+  }
+}

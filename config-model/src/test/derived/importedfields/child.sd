@@ -1,0 +1,37 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema child {
+  document child {
+    field a_ref type reference<parent_a> {
+        indexing: attribute
+    }
+    field b_ref type reference<parent_b> {
+        indexing: attribute
+    }
+    field b_ref_with_summary type reference<parent_b> {
+        indexing: attribute | summary
+    }
+  }
+  import field a_ref.int_field as my_int_field {}
+  import field b_ref.string_field as my_string_field {}
+  import field a_ref.int_array_field as my_int_array_field {}
+  import field a_ref.int_wset_field as my_int_wset_field {}
+  import field a_ref.ancient_int_field as my_ancient_int_field {}
+
+  fieldset myfieldset {
+    fields: my_int_field, my_string_field, my_ancient_int_field
+  }
+
+  document-summary mysummary {
+    summary a_ref type reference<parent_a> {}
+    summary b_ref_with_summary type reference<parent_b> {}
+    summary my_int_field type int {}
+    summary my_string_field type string {}
+    summary my_int_array_field type array<int> {}
+    summary my_int_wset_field type weightedset<int> {}
+    summary my_ancient_int_field type int {}
+    summary my_filtered_int_array_field type array<int> {
+      source: my_int_array_field
+      matched-elements-only
+    }
+  }
+}

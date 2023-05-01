@@ -1,0 +1,62 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema exactmatch {
+
+  document exactmatch {
+
+    struct elem {
+      field name type string {}
+      field weight type int {}
+    }
+
+    field tag type string {
+      indexing: summary | index
+      match: exact
+    }
+
+    field screweduserids type string {
+      indexing: index | summary | attribute
+      match {
+        exact
+        exact-terminator: "*!A!!*"
+      }
+    }
+
+    field string_map type map<string, string> {
+      indexing: summary
+      struct-field key {
+        indexing: attribute
+        match {
+          exact
+          exact-terminator: "*!B!!*"
+        }
+      }
+    }
+
+    field elem_map type map<string, elem> {
+      indexing: summary
+      struct-field value.name {
+        indexing: attribute
+        match: exact
+      }
+    }
+
+    field elem_array type array<elem> {
+      indexing: summary
+      struct-field name {
+        indexing: attribute
+        match: exact
+      }
+    }
+
+    field another_map type map<string, elem> {
+      struct-field value.name {
+        indexing: attribute
+        match {
+          exact
+          exact-terminator: "*!C!!*"
+        }
+      }
+    }
+
+  }
+}

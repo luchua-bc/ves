@@ -1,0 +1,7 @@
+Makefile
+.depend*
+.*.swp
+*.So
+*.hxx
+*.cxx
+*.hh

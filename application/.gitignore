@@ -1,0 +1,5 @@
+/target
+pom.xml.build
+/logs
+.preprocessed
+/src/test/app-packages/*/models.generated/

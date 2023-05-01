@@ -1,0 +1,13 @@
+*.So
+*.lo
+*.o
+.*.swp
+.config.log
+.depend
+.depend.NEW
+.deps
+.libs
+Makefile
+testrunner
+testrunner.core
+storage_persistence_gtest_runner_app

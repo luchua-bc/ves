@@ -1,0 +1,73 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=cloud.config
+
+# Ports
+rpcport int default=19070
+httpport int default=19071
+# 0 means use the number of CPU cores available
+numRpcThreads int default=0
+
+# ZooKeeper
+zookeeperserver[].hostname string
+zookeeperserver[].port int default=2181
+# ZK write timeout in seconds, must be long enough to write application packages to other nodes
+zookeeper.barrierTimeout long default=360
+zookeeperLocalhostAffinity bool default=true
+sessionLifetime long default=3600 # in seconds
+# How long to wait for all ZooKeeper servers to reach barrier after quorum has reached barrier. In seconds
+barrierWaitForAllTimeout long default=1
+
+# Directories
+configModelPluginDir[] string
+configServerDBDir string default="var/db/vespa/config_server/serverdb/"
+configDefinitionsDir string default="share/vespa/configdefinitions/"
+fileReferencesDir string default="var/db/vespa/filedistribution/"
+
+# Application package
+# The maximum decompressed size of an application package, in bytes. Defaults to 8 GB
+maxApplicationPackageSize long default=8589934592
+
+# Misc
+masterGeneration long default=0
+multitenant bool default=false
+numDelayedResponseThreads int default=1
+serverId string default="localhost"
+hostedVespa bool default=false
+numParallelTenantLoaders int default=4
+numRedeploymentThreads int default=4
+
+# Configserver app
+applicationDirectory string default="conf/configserver-app"
+
+# Zone information
+cloud string default="default"
+environment string default="prod"
+region string default="default"
+system string default="main"
+zoneDnsSuffixes[] string
+
+# RPC protocol
+maxgetconfigclients int default=1000000
+maxoutputbuffersize int default=65536
+useVespaVersionInRequest bool default=true
+payloadCompressionType enum { UNCOMPRESSED, LZ4 } default=LZ4
+
+# Athenz config
+loadBalancerAddress string default=""
+athenzDnsSuffix string default=""
+ztsUrl string default=""
+
+# Maintenance settings
+maintainerIntervalMinutes int default=30
+keepUnusedFileReferencesMinutes int default=300
+keepSessionsWithUnknownStatusHours int default=24
+
+# Bootstrapping
+# How long bootstrapping can take before giving up (in seconds)
+maxDurationOfBootstrap long default=7200
+# Initial time for how long to sleep before redeploying again if it fails (in seconds)
+# Code uses backoff, so wait time will increase for every iteration
+sleepTimeWhenRedeployingFails long default=15
+
+canReturnEmptySentinelConfig bool default=false
+serverNodeType enum {config, controller} default=config

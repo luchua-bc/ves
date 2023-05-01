@@ -1,0 +1,12 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=container.core
+
+## Whether to return hard-coded reply or serve "status.html" from disk
+accessdisk bool default=false
+
+## The file to serve as the status file.
+## If the path is relative vespa home is prepended
+statusfile string default="share/qrsdocs/status.html"
+
+## Whether this container should be in rotation by default on startup
+initiallyInRotation bool default=true

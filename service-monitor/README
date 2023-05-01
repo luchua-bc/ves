@@ -1,0 +1,2 @@
+A service which provides the up/down status of all service instances ("nodes in a cluster")
+in all applications in a system.

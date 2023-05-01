@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<!-- Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.yahoo.vespa</groupId>
+    <artifactId>parent</artifactId>
+    <version>8-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
+  </parent>
+  <artifactId>config-model-fat</artifactId>
+  <packaging>bundle</packaging>
+  <version>8-SNAPSHOT</version>
+  <dependencies>
+    <dependency>
+      <groupId>com.yahoo.vespa</groupId>
+      <artifactId>fat-model-dependencies</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+    </dependency>
+
+    <dependency>
+      <groupId>com.yahoo.vespa</groupId>
+      <artifactId>config-model-api</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.yahoo.vespa</groupId>
+      <artifactId>config-provisioning</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.inject</groupId>
+          <artifactId>guice</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>parse-version</id>
+            <goals>
+              <goal>parse-version</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <_fixupmessages>"Classes found in the wrong directory"</_fixupmessages> <!-- Hide warnings for multi-release jars -->
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Bundle-Version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</Bundle-Version>
+            <Embed-Dependency>*;scope=compile|runtime;type=!pom</Embed-Dependency>
+            <Embed-Transitive>true</Embed-Transitive>
+            <Import-Package>!*</Import-Package>
+            <!-- Should only import packages that meet one or more of the below criteria:
+                  * contained in the config-model-api bundle
+                  * rt.jar packages (exported by jdisc_core)
+                  * @PublicApi - they are not allowed to change behaviour and must be binary compatible between minor releases
+             -->
+            <Import-Package>
+              com.google.inject, <!-- must use @Inject exported from container -->
+              com.fasterxml.*, <!-- expands to all Jackson packages by Felix plugin -->
+              com.yahoo.component,
+              com.yahoo.component.provider,
+              com.yahoo.config,
+              com.yahoo.config.application.api,
+              com.yahoo.config.application.api.xml,
+              com.yahoo.config.model.api,
+              com.yahoo.config.model.api.container,
+              com.yahoo.config.provision,
+              com.yahoo.config.provision.zone,
+              com.yahoo.io.reader,
+              com.yahoo.path,
+              javax.crypto.interfaces,
+              javax.crypto.spec,
+              javax.crypto,
+              javax.naming.directory,
+              javax.naming.ldap,
+              javax.naming,
+              javax.net.ssl,
+              javax.security.auth.callback,
+              javax.security.auth.x500,
+              javax.security.auth,
+              javax.xml.datatype,
+              javax.xml.namespace,
+              javax.xml.parsers,
+              javax.xml.transform,
+              javax.xml.xpath,
+              org.bouncycastle.*, <!-- expands to all BC packages by Felix plugin -->
+              org.w3c.dom.bootstrap,
+              org.w3c.dom.ls,
+              org.w3c.dom,
+              org.xml.sax,
+              <!-- TODO: The fat bundle becomes more brittle for each package added below. Use interfaces in model-api instead. -->
+              com.yahoo.vespa.config,
+              com.yahoo.vespa.config.buildergen,
+              com.yahoo.config.codegen <!-- TODO: Remove when the model of config def, which today is InnerCNode in codegen :-(, is moved to config-lib -->
+            </Import-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>com.yahoo.vespa</groupId>
+            <artifactId>vespa-enforcer-extensions</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <!-- To allow running 'mvn enforcer:enforce' from the command line -->
+            <id>default-cli</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <enforceDependencies implementation="com.yahoo.vespa.maven.plugin.enforcer.EnforceDependencies">
+                  <!--
+                  Validate which dependencies, including transitive, are embedded inside the fat model jar
+                  -->
+                  <allowed>
+                    <i>*:*:*:provided</i>
+                    <i>com.yahoo.vespa:fat-model-dependencies:*:*</i>
+
+                    <!-- Vespa artifacts embedded -->
+                    <i>com.yahoo.vespa:airlift-zstd:*:*</i>
+                    <i>com.yahoo.vespa:annotations:*:*</i>
+                    <i>com.yahoo.vespa:component:*:*</i>
+                    <i>com.yahoo.vespa:config:*:*</i>
+                    <i>com.yahoo.vespa:config-application-package:*:*</i>
+                    <i>com.yahoo.vespa:config-bundle:*:*</i>
+                    <i>com.yahoo.vespa:config-lib:*:*</i>
+                    <i>com.yahoo.vespa:config-model:*:*</i>
+                    <i>com.yahoo.vespa:configdefinitions:*:*</i>
+                    <i>com.yahoo.vespa:configgen:*:*</i>
+                    <i>com.yahoo.vespa:container-core:*:*</i>
+                    <i>com.yahoo.vespa:container-disc:*:*</i>
+                    <i>com.yahoo.vespa:container-documentapi:*:*</i>
+                    <i>com.yahoo.vespa:container-messagebus:*:*</i>
+                    <i>com.yahoo.vespa:container-search:*:*</i>
+                    <i>com.yahoo.vespa:container-search-and-docproc:*:*</i>
+                    <i>com.yahoo.vespa:defaults:*:*</i>
+                    <i>com.yahoo.vespa:docproc:*:*</i>
+                    <i>com.yahoo.vespa:document:*:*</i>
+                    <i>com.yahoo.vespa:documentapi:*:*</i>
+                    <i>com.yahoo.vespa:fileacquirer:*:*</i>
+                    <i>com.yahoo.vespa:fsa:*:*</i>
+                    <i>com.yahoo.vespa:http-utils:*:*</i>
+                    <i>com.yahoo.vespa:indexinglanguage:*:*</i>
+                    <i>com.yahoo.vespa:jdisc_core:*:*</i>
+                    <i>com.yahoo.vespa:jrt:*:*</i>
+                    <i>com.yahoo.vespa:linguistics:*:*</i>
+                    <i>com.yahoo.vespa:logd:*:*</i>
+                    <i>com.yahoo.vespa:messagebus:*:*</i>
+                    <i>com.yahoo.vespa:metrics:*:*</i>
+                    <i>com.yahoo.vespa:metrics-proxy:*:*</i>
+                    <i>com.yahoo.vespa:model-evaluation:*:*</i>
+                    <i>com.yahoo.vespa:model-integration:*:*</i>
+                    <i>com.yahoo.vespa:predicate-search-core:*:*</i>
+                    <i>com.yahoo.vespa:provided-dependencies:*:*</i>
+                    <i>com.yahoo.vespa:searchcore:*:*</i>
+                    <i>com.yahoo.vespa:searchlib:*:*</i>
+                    <i>com.yahoo.vespa:searchsummary:*:*</i>
+                    <i>com.yahoo.vespa:security-utils:*:*</i>
+                    <i>com.yahoo.vespa:storage:*:*</i>
+                    <i>com.yahoo.vespa:vdslib:*:*</i>
+                    <i>com.yahoo.vespa:vespaclient-core:*:*</i>
+                    <i>com.yahoo.vespa:vespajlib:*:*</i>
+                    <i>com.yahoo.vespa:vespalog:*:*</i>
+                    <i>com.yahoo.vespa:vsm:*:*</i>
+
+                    <!-- 3rd party artifacts embedded -->
+                    <i>aopalliance:aopalliance:*:*</i>
+                    <i>com.google.errorprone:error_prone_annotations:*:*</i>
+                    <i>com.google.guava:failureaccess:*:*</i>
+                    <i>com.google.guava:guava:*:*</i>
+                    <i>com.google.inject:guice:jar:no_aop:*:*</i>
+                    <i>com.google.j2objc:j2objc-annotations:*:*</i>
+                    <i>com.google.protobuf:protobuf-java:*:*</i>
+                    <i>com.sun.activation:javax.activation:*:*</i>
+                    <i>com.sun.xml.bind:jaxb-core:*:*</i>
+                    <i>com.sun.xml.bind:jaxb-impl:*:*</i>
+                    <i>com.thaiopensource:jing:*:*</i>
+                    <i>io.prometheus:simpleclient:*:*</i>
+                    <i>io.prometheus:simpleclient_common:*:*</i>
+                    <i>javax.inject:javax.inject:*:*</i>
+                    <i>net.openhft:zero-allocation-hashing:*:*</i>
+                    <i>org.antlr:antlr-runtime:*:*</i>
+                    <i>org.antlr:antlr4-runtime:*:*</i>
+                    <i>org.apache.felix:org.apache.felix.framework:*:*</i>
+                    <i>org.hdrhistogram:HdrHistogram:*:*</i>
+                    <i>org.lz4:lz4-java:*:*</i>
+                    <i>org.slf4j:jcl-over-slf4j:*:*</i>
+                    <i>org.slf4j:log4j-over-slf4j:*:*</i>
+                    <i>org.slf4j:slf4j-api:*:*</i>
+                    <i>org.slf4j:slf4j-jdk14:*:*</i>
+                    <i>xerces:xercesImpl:*:*</i>
+                    <i>xml-apis:xml-apis:*:*</i>
+                  </allowed>
+                </enforceDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

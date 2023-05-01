@@ -1,0 +1,9 @@
+// Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+#pragma once
+
+#ifndef noinline__
+#define noinline__ __attribute__((noinline))
+#endif
+
+

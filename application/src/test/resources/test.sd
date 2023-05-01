@@ -1,0 +1,19 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+search test {
+
+  document test {
+
+    field title type string {
+      weight: 30
+      stemming: none
+      bolding: on
+    }
+
+    field body type string {
+      weight: 6
+      stemming: none
+      summary: dynamic
+    }
+  }
+
+}

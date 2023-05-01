@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root. -->
+<services version="1.0">
+
+  <container version="1.0">
+    <model-evaluation>
+      <onnx>
+        <models>
+          <model name="mul">
+            <intraop-threads>2</intraop-threads>
+            <gpu-device>0</gpu-device>
+          </model>
+          <model name="non-existent-model">
+            <interop-threads>400</interop-threads>
+            <execution-mode>parallel</execution-mode>
+          </model>
+        </models>
+      </onnx>
+    </model-evaluation>
+    <nodes count="2">
+      <resources vcpu="4" memory="16Gb" disk="125Gb">
+        <gpu count="1" memory="16Gb"/>
+      </resources>
+    </nodes>
+  </container>
+
+  <content id="test" version="1.0">
+    <redundancy>1</redundancy>
+    <documents>
+      <document mode="index" type="test"/>
+    </documents>
+  </content>
+
+</services>

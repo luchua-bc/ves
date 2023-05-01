@@ -1,0 +1,35 @@
+{
+    "distributor": {
+        "storage-nodes": [
+            {
+                "node-index": 0,
+                "min-current-replication-factor": 2,
+                "bucket-spaces" : [
+                    {
+                        "name": "default",
+                        "buckets": {
+                            "total": 11,
+                            "pending": 3
+                        }
+                    },
+                    {
+                        "name": "global",
+                        "buckets": {
+                            "total": 13,
+                            "pending": 5
+                        }
+                    }
+                ]
+            },
+            {
+                "node-index": 5,
+                "min-current-replication-factor": 9,
+                "bucket-spaces" : [
+                    {
+                        "name": "default"
+                    }
+                ]
+            }
+        ]
+    }
+}

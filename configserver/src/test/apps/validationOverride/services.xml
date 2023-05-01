@@ -1,0 +1,11 @@
+<!-- Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root. -->
+<container version="1.0">
+    <http>
+        <filtering>
+            <access-control domain="foo" write="true" />
+        </filtering>
+        <server id="foo"/>
+    </http>
+    <search/>
+    <nodes count="2"/>
+</container>

@@ -1,0 +1,24 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema integerattributetostringindex {
+  document integerattributetostringindex {
+  field attinx type int {
+  indexing: summary |  attribute | index
+  }
+
+field artist type string {
+indexing: summary | attribute
+}
+
+
+field title type string {
+indexing: summary | index
+}
+
+field year type int {
+indexing: summary | attribute
+attribute : fast-search
+}
+
+}
+
+}

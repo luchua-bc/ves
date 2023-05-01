@@ -1,0 +1,22 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema streamingstructdefault {
+  document streamingstructdefault {
+    struct sct {
+      field s1 type string {}
+      field s2 type string {}
+    }
+    field f1 type array<string> {
+      indexing: index | summary
+      summary-to: default
+    }
+    field f2 type array<sct> {
+      indexing: index | summary
+    }
+  }
+  document-summary default {
+    summary sum1 type string {
+      source: f1, f2.s1
+      dynamic
+    }
+  }
+}

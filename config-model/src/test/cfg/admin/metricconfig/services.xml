@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root. -->
+<services>
+    <admin version="2.0">
+        <adminserver hostalias="node1"/>
+        <logserver hostalias="node1"/>
+        <monitoring interval="60"/>
+        <metrics>
+            <consumer id="fooConsumer">
+                <metric id="some.foo.metric" display-name="someFooMetric"/>
+                <metric id="some.foo.metric2" display-name="someFooMetric2"/>
+                <metric id="proton.numdocs.average" display-name="tull"/>
+            </consumer>
+            <consumer id="fooConsumer2">
+                <metric id="some.foo.metric3" display-name="someFooMetric3"/>
+            </consumer>
+            <consumer id="yamas">
+                <metric id="vds.distributor.bytesstored.average" display-name="tullball"/>
+                <metric id="proton.numdocs.average" display-name="overridden"/>
+            </consumer>
+        </metrics>
+    </admin>
+
+    <container version="1.0">
+
+        <nodes>
+            <node hostalias="node1"/>
+            <node hostalias="node2" />
+        </nodes>
+
+        <search/>
+
+        <document-api/>
+
+        <document-processing>
+            <chain id="default">
+                <documentprocessor id="com.yahoo.docprocs.FoobarDocumentProcessor"/>
+            </chain>
+        </document-processing>
+
+    </container>
+
+    <content version="1.0" id="music">
+
+        <redundancy>1</redundancy>
+
+        <documents>
+            <document type="music" mode="index"/>
+        </documents>
+
+        <nodes>
+            <node hostalias="node1" distribution-key="0"/>
+            <node hostalias="node2" distribution-key="1"/>
+        </nodes>
+
+    </content>
+
+</services>

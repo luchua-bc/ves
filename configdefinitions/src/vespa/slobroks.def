@@ -1,0 +1,12 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=cloud.config
+
+### Changes to this config requires restart
+
+## The connectionspec for a slobrok is used for connecting to it using
+## the FNET Remote Tools framework.  It is normally on the form
+## tcp/hostname:portnumber where hostname is the same name returned by
+## gethostname() on the machine.  This string is also used by the
+## actual slobrok to figure out which port it should listen to.
+
+slobrok[].connectionspec string restart

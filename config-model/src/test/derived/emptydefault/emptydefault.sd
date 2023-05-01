@@ -1,0 +1,16 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema emptydefault {
+
+  document emptydefault {
+
+    field one type string {
+      indexing: index
+    }
+
+    field two type string {
+      indexing: index
+    }
+
+  }
+
+}

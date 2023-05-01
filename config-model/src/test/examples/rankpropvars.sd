@@ -1,0 +1,72 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+search music {
+rank-profile other  {
+
+rank-properties {
+    $testvar1  :   "foo"
+    $testvar_2:"bar"
+    $testvarOne23: "baz"
+    fieldMatch(title).maxAlternativeSegmentations: 10
+    fieldmatch(title).maxOccurrences: 5
+    fieldMatch(description).maxOccurrences: 20
+}
+
+first-phase {
+  expression:nativeRank
+}
+
+second-phase {
+  expression {
+    if (attribute(artist) == query(testvar1),
+        0.0 * fieldMatch(title) +  0.0 * attribute(Popularity) + 0.0 * fieldMatch(artist),
+        0.0 * attribute(Popularity) + 0.0 * fieldMatch(artist) +  0.0 * fieldMatch(title))
+  }
+}
+
+}
+
+rank-profile another {
+rank-properties {
+    $Testvar1  :   "1"
+    $Testvar_4:"4"
+    $testvarFour23: "234234.234"
+    fieldMatch(title).maxAlternativeSegmentations: 45
+    fieldmatch(title).maxOccurrences: 56
+    fieldMatch(description).maxOccurrences: 23
+}
+
+first-phase {
+  expression:nativeRank
+}
+
+second-phase {
+  expression {
+    if (attribute(artist) == query(testvar1),  
+        0.0 * fieldMatch(title) +  0.0 * attribute(Popularity) + 0.0 * fieldMatch(artist),
+        0.0 * attribute(Popularity) + 0.0 * fieldMatch(artist) +  0.0 * fieldMatch(title))
+  }
+}
+}
+
+document music {
+
+    field title type string {
+      indexing: index | summary
+    }
+
+    field artist type string {
+      indexing: index | summary
+    }
+
+    field year type int {
+      indexing: attribute | summary
+    }
+
+    field url type uri {}
+
+    field Popularity type string {
+      indexing: attribute | summary
+    }
+}
+
+}

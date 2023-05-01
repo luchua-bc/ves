@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!-- Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.yahoo.vespa</groupId>
+        <artifactId>parent</artifactId>
+        <version>8-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>container-dependencies-enforcer</artifactId>
+    <version>8-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.yahoo.vespa</groupId>
+            <artifactId>container-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Declare container-test before container here, opposite of what we do in hosted-tenant-base, to cover both cases -->
+        <dependency>
+            <groupId>com.yahoo.vespa</groupId>
+            <artifactId>container</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.yahoo.vespa</groupId>
+                        <artifactId>vespa-enforcer-extensions</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <!-- To allow running 'mvn enforcer:enforce' from the command line -->
+                        <id>default-cli</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <enforceDependencies implementation="com.yahoo.vespa.maven.plugin.enforcer.EnforceDependencies">
+                                    <allowed>
+                                        <include>*:*:*:test</include>
+                                        <include>com.yahoo.vespa:*:*:*</include>
+                                        <include>aopalliance:aopalliance:${aopalliance.version}:provided</include>
+                                        <include>com.fasterxml.jackson.core:jackson-annotations:${jackson2.version}:provided</include>
+                                        <include>com.fasterxml.jackson.core:jackson-core:${jackson2.version}:provided</include>
+                                        <include>com.fasterxml.jackson.core:jackson-databind:${jackson-databind.version}:provided</include>
+                                        <include>com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson2.version}:provided</include>
+                                        <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson2.version}:provided</include>
+
+                                        <!-- Guava with its internal dependencies -->
+                                        <include>com.google.guava:guava:${guava.version}:provided</include>
+                                        <include>com.google.errorprone:error_prone_annotations:2.18.0:provided</include>
+                                        <include>com.google.guava:failureaccess:1.0.1:provided</include>
+                                        <include>com.google.j2objc:j2objc-annotations:1.1:provided</include>
+
+                                        <include>com.google.inject:guice:jar:no_aop:${guice.version}:provided</include>
+                                        <include>com.sun.activation:javax.activation:1.2.0:provided</include>
+                                        <include>com.sun.xml.bind:jaxb-core:${jaxb.version}:provided</include>
+                                        <include>com.sun.xml.bind:jaxb-impl:${jaxb.version}:provided</include>
+                                        <include>commons-logging:commons-logging:1.2:provided</include>
+                                        <include>javax.inject:javax.inject:${javax.inject.version}:provided</include>
+                                        <include>javax.servlet:javax.servlet-api:${javax.servlet-api.version}:provided</include>
+                                        <include>javax.ws.rs:javax.ws.rs-api:${javax.ws.rs-api.version}:provided</include>
+                                        <include>javax.xml.bind:jaxb-api:${jaxb.version}:provided</include>
+                                        <include>org.slf4j:jcl-over-slf4j:${slf4j.version}:provided</include>
+                                        <include>org.slf4j:log4j-over-slf4j:${slf4j.version}:provided</include>
+                                        <include>org.slf4j:slf4j-api:${slf4j.version}:provided</include>
+                                        <include>org.slf4j:slf4j-jdk14:${slf4j.version}:provided</include>
+                                        <include>xml-apis:xml-apis:${xml-apis.version}:provided</include>
+                                    </allowed>
+                                </enforceDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+    </properties>
+
+</project>

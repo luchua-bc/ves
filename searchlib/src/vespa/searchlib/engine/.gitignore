@@ -1,0 +1,5 @@
+*.So
+.depend
+Makefile
+/*.pb.h
+/*.pb.cc

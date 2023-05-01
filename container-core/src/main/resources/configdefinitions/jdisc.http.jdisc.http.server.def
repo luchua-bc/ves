@@ -1,0 +1,62 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=jdisc.http
+
+# Whether to enable developer mode, where stack traces etc are visible in response bodies.
+developerMode                         bool   default=false
+
+# TODO Vespa 9 Remove
+# Has no effect since Jetty 11 upgrade
+responseCompressionLevel              int    default=6
+
+# Whether the request body of POSTed forms should be removed (form parameters are available as request parameters).
+removeRawPostBodyForWwwUrlEncodedPost bool   default=false
+
+# The component ID of a filter
+filter[].id string
+
+# The binding of a filter
+filter[].binding string
+
+# Filter id for a default filter (chain)
+defaultFilters[].filterId string
+
+# The local port which the default filter should be applied to
+defaultFilters[].localPort int
+
+# Reject all requests not handled by a request filter (chain)
+strictFiltering                       bool   default = false
+
+# Max number of threads in underlying Jetty pool
+# Defaults to 16+vCPU
+maxWorkerThreads                      int    default = -1
+
+# Min number of threads in underlying Jetty pool
+# Defaults to 16+vCPU
+minWorkerThreads                      int    default = -1
+
+# Stop timeout in seconds. The maximum allowed time to process in-flight requests during server shutdown. Setting it to 0 disable graceful shutdown.
+stopTimeout                           double default = 30.0
+
+# Enable embedded JMX server. Note: only accessible through the loopback interface.
+jmx.enabled                           bool   default = false
+
+# Listen port for the JMX server.
+jmx.listenPort                        int    default = 1099
+
+# Paths that should be reported with monitoring dimensions where applicable
+metric.monitoringHandlerPaths[]       string
+
+# Paths that should be reported with search dimensions where applicable
+metric.searchHandlerPaths[]           string
+
+# User-agent names to ignore wrt statistics (crawlers etc)
+metric.ignoredUserAgents[]            string
+
+# HTTP request headers that contain remote address
+accessLog.remoteAddressHeaders[]      string
+
+# HTTP request headers that contain remote port
+accessLog.remotePortHeaders[]         string
+
+# Whether to enable jdisc connection log
+connectionLog.enabled                 bool default=false

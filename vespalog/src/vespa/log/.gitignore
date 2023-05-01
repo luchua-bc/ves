@@ -1,0 +1,7 @@
+*.So
+*.so.*
+.depend
+Makefile
+logctl
+logtest
+logtest.logcontrol

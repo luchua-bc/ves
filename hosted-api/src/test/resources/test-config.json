@@ -1,0 +1,22 @@
+{
+  "application": "t:a:i",
+  "zone": "dev.aws-us-east-1c",
+  "system": "publiccd",
+  "isCI": true,
+  "platform": "1.2.3",
+  "revision": 321,
+  "deployedAt": 1600000000,
+  "zoneEndpoints": {
+    "dev.aws-us-east-1c": {
+      "default": "https://dev.endpoint:443/"
+    },
+    "prod.aws-us-east-1a": {
+      "default": "https://prod.endpoint:443/"
+    }
+  },
+  "clusters": {
+    "prod.aws-us-east-1c": [
+      "documents"
+    ]
+  }
+}

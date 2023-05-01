@@ -1,0 +1,42 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+search blog {
+
+  document blog {
+
+    field title type string {
+        indexing: summary | index
+    }
+
+    field author type string {
+	    indexing: summary | index
+    }
+
+    field body type string {
+	    indexing: summary | index
+    }
+
+    field url type uri {
+	    indexing: index | summary
+    }
+  }
+
+  annotation industry {
+    field vertical type string {}
+  }
+
+  annotation company inherits industry {
+    field name type string {}
+	field ceo type string {}	
+	field lat type long {}
+	field lon type long {}
+  }
+
+  annotation person {
+	field name type string {}
+  }
+
+  annotation location {
+  	field name type string {}
+  }
+}
+

@@ -1,0 +1,18 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema parent_a {
+  document parent_a {
+    field grandparent_ref type reference<grandparent> {
+      indexing: attribute
+    }
+    field int_field type int {
+      indexing: attribute
+    }
+    field int_array_field type array<int> {
+      indexing: attribute
+    }
+    field int_wset_field type weightedset<int> {
+      indexing: attribute
+    }
+  }
+  import field grandparent_ref.int_field as ancient_int_field {}
+}

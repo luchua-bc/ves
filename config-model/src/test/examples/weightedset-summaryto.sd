@@ -1,0 +1,16 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+search test {
+
+  document test {
+
+      field w type weightedset<string> {
+          summary-to: mysummary
+          weightedset {
+              create-if-nonexistent
+          }
+      
+      }
+
+  }
+
+}

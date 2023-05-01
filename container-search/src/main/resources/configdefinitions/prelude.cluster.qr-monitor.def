@@ -1,0 +1,6 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=prelude.cluster
+
+## The number of milliseconds to attempt to complete a request before
+## giving up, including nodetimeout.
+requesttimeout int default=5000

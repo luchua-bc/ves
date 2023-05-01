@@ -1,0 +1,16 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+# Config for load balancer that needs to know about all services for
+# all tenants and applications in a config server cluster
+
+namespace=cloud.config
+
+# Active rotation given as flag 'active' for a prod region in deployment.xml
+# Default true for now (since code in config-model to set it is not ready yet), should have no default value
+tenants{}.applications{}.activeRotation                                 bool default=true
+
+tenants{}.applications{}.endpoints[].dnsName         string
+tenants{}.applications{}.endpoints[].clusterId       string
+tenants{}.applications{}.endpoints[].scope           enum {application, global, zone}
+tenants{}.applications{}.endpoints[].routingMethod   enum {shared, sharedLayer4}
+tenants{}.applications{}.endpoints[].weight          int default=1
+tenants{}.applications{}.endpoints[].hosts[]         string

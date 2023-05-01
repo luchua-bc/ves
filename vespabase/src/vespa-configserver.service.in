@@ -1,0 +1,18 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+[Unit]
+Description=Vertical Search Platform Config Server
+After=network.target
+
+[Service]
+Type=forking
+User=vespa
+PIDFile=@CMAKE_INSTALL_PREFIX@/var/run/configserver.pid
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/vespa-start-configserver
+ExecStop=@CMAKE_INSTALL_PREFIX@/bin/vespa-stop-configserver
+LimitNOFILE=32768:262144
+LimitCORE=0:infinity
+LimitNPROC=32768:409600
+LimitStack=8388608:16777216
+
+[Install]
+WantedBy=multi-user.target

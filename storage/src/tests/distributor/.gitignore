@@ -1,0 +1,9 @@
+*.So
+*.lo
+.*.swp
+.depend
+.depend.NEW
+.deps
+.libs
+Makefile
+storage_distributor_gtest_runner_app

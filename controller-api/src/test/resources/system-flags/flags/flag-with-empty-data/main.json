@@ -1,0 +1,10 @@
+{
+  "comment": "comment a",
+  "id" : "flag-with-empty-data",
+  "rules" : [
+    {
+      "comment": "comment b",
+      "value" : "main"
+    }
+  ]
+}

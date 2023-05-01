@@ -1,0 +1,122 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema tensor {
+
+  document tensor {
+    field f1 type tensor(x[3]) {
+      indexing: summary
+    }
+    field f2 type tensor<float>(x[2],y[1]) {
+      indexing: attribute
+    }
+    field f3 type tensor<double>(x{}) {
+      indexing: attribute | summary
+    }
+    field f4 type tensor(x[10],y[10]) {
+      indexing: attribute | summary
+    }
+    field f5 type tensor<float>(x[10]) {
+      indexing: attribute | summary
+    }
+    field f6 type float {
+      indexing: attribute
+    }
+  }
+  
+  rank-profile profile1 {
+
+    first-phase {
+      expression: sum(map(attribute(f4),f(x)(x*x)) + reduce(random(x[2],y[3]), count) * rename(attribute(f4), (x, y), (y, x)))
+    }
+  
+  }
+
+  rank-profile profile2 {
+
+    first-phase {
+      expression: sum(matmul(attribute(f4), diag(x[10],y[10],z[3]), x))
+    }
+  
+  }
+
+  rank-profile profile3 {
+
+    first-phase {
+      expression: sum(joinedtensors())
+    }
+
+    function joinedtensors() {
+        expression: tensor(i[10])(i) * attribute(f4)
+    }
+
+  }
+
+  rank-profile profile4 {
+
+    first-phase {
+      expression: sum(attribute(f5))
+    }
+  
+  }
+
+  rank-profile profile5 {
+
+    first-phase {
+      expression: sum(tensor<float>(d0[1],x[2]):[[attribute(f6), sum(attribute(f5))]])
+    }
+
+  }
+
+  rank-profile profile6 {
+
+    first-phase {
+      expression: sum(tensor<float>(d0[1],x[2]):[[attribute(f6), sum(joinedtensors())]])
+    }
+
+    function joinedtensors() {
+        expression: tensor(i[10])(i) * attribute(f4)
+    }
+
+  }
+
+  rank-profile profile7 {
+
+    first-phase {
+      expression: sum(reshaped() * literal())
+    }
+
+    function reshaped() {
+      expression: tensor<float>(d0[1],x[2])(attribute(f2){x:1-x, y:d0})
+    }
+
+    function literal() {
+      expression: tensor<float>(key{}):{ 'foo':0.5, bar:1.2, "han's":3.1}
+    }
+
+  }
+
+  rank-profile profile8 {
+
+    first-phase {
+      expression: sum(tensor(d0[1])(attribute(f3){x:functionNotLabel()}))
+    }
+
+    function functionNotLabel() {
+      expression: 3
+    }
+
+  }
+
+  rank-profile profile9 {
+
+    # shadow refers to the generate index and shadow() to the function
+    first-phase {
+      expression: sum(tensor(shadow[1])(attribute(f3){x: shadow + shadow() }))
+    }
+
+    function shadow() {
+      expression: 3
+    }
+
+  }
+
+}

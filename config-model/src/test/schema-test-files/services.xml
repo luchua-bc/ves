@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root. -->
+<services version="1.0">
+
+  <config name="foo">
+    <intVal>1</intVal>
+  </config>
+
+  <admin version="2.0">
+    <adminserver hostalias="adminserver" />
+    <logserver hostalias="logserver" />
+    <slobroks>
+      <slobrok hostalias="configserver" />
+      <slobrok hostalias="container" />
+      <slobrok hostalias="searchnode-1" />
+    </slobroks>
+    <metrics>
+
+      <consumer id="cloudwatch-hosted">
+        <metric-set id="my-set" />
+        <metric id="my-metric"/>
+        <metric id="my-metric2" display-name="my-metric3"/>
+        <metric display-name="my-metric4" id="my-metric4.avg"/>
+        <cloudwatch region="us-east1" namespace="my-namespace">
+          <credentials access-key-name="my-access-key" secret-key-name="my-secret-key" />
+        </cloudwatch>
+      </consumer>
+
+      <consumer id="cloudwatch-self-hosted-with-default-auth">
+        <metric-set id="public" />
+        <cloudwatch region="us-east1" namespace="namespace_legal.chars:/#1" />
+      </consumer>
+
+      <consumer id="cloudwatch-self-hosted-with-profile">
+        <metric id="my-custom-metric" />
+        <cloudwatch region="us-east1" namespace="another-namespace">
+          <shared-credentials file="/user/.aws/credentials" profile="profile-in-credentials-file" />
+        </cloudwatch>
+      </consumer>
+
+    </metrics>
+    <logforwarding>
+      <splunk deployment-server="foo:8989" client-name="foobar" splunk-home="/opt/splunk" phone-home-interval="900"/>
+    </logforwarding>
+  </admin>
+
+  <config name="bar">
+    <intVal>1</intVal>
+  </config>
+
+  <container id='qrsCluster_1' version='1.0'>
+    <secret-store type="oath-ckms">
+      <!-- NOTE: when removing (or adding) an environment, the rnc schema must also be updated! -->
+      <group name="foo" environment="alpha" />
+      <group name="foo" environment="corp" />
+      <group name="foo" environment="prod" />
+      <group name="foo" environment="aws" />
+      <group name="foo" environment="aws_stage" />
+    </secret-store>
+
+    <http>
+      <filtering strict-mode="true">
+        <access-control>
+          <exclude>
+            <binding>http//*/foo/*</binding>
+          </exclude>
+        </access-control>
+
+        <filter id="com.yahoo.YcaFilter" bundle="mybundle">
+          <filter-config>
+            <foo>bar</foo>
+            <feature.enabled>true</feature.enabled>
+          </filter-config>
+        </filter>
+
+        <response-chain id="BaseChain">
+          <filter id="com.yahoo.Filter1" />
+          <filter id="com.yahoo.Filter2">
+            <filter-config />
+          </filter>
+          <binding>http://*/path1/*</binding>
+          <binding>http://*/path2/*</binding>
+        </response-chain>
+
+        <request-chain id="DerivedChain" inherits="BaseChain" excludes="com.yahoo.Filter1">
+          <filter id="com.yahoo.Filter3">
+            <config name="container.core.http.http-filter">
+              <param>
+                <item>
+                  <name>yca.appid.allow</name>
+                  <value>yahoo.vespa_factory.yca_test</value>
+                </item>
+              </param>
+            </config>
+          </filter>
+          <binding>http://*/path/*</binding>
+        </request-chain>
+      </filtering>
+
+      <server port="4080" id="myServer" default-request-chain="DerivedChain" default-response-chain="BaseChain"/>
+      <server port="4081" id="anotherServer"/>
+      <server port="4082" id="defaultSsl">
+        <ssl>
+          <private-key-file>/foo/key</private-key-file>
+          <certificate-file>/foo/cert</certificate-file>
+          <ca-certificates-file>/foo/cacerts</ca-certificates-file>
+          <client-authentication>want</client-authentication>
+          <cipher-suites>
+            TLS_AES_128_GCM_SHA256,
+            TLS_AES_256_GCM_SHA384,
+            TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          </cipher-suites>
+          <protocols>TLSv1.2,TLSv1.3</protocols>
+        </ssl>
+      </server>
+      <server port="4083" id="sslProvider">
+        <ssl-provider class="com.yahoo.MySslProvider" bundle="mybundle"/>
+      </server>
+    </http>
+
+    <accesslog type='json'
+           fileNamePattern='logs/vespa/access/access-json.%Y%m%d%H%M%S' compressOnRotation='true'  compressionType='zstd' queueSize='13' bufferSize='65536'/>
+    <accesslog type='vespa'
+           fileNamePattern='logs/vespa/access/access-vespa.%Y%m%d%H%M%S' />
+
+    <document-api>
+      <binding>http://*/document-api/</binding>
+      <abortondocumenterror>false</abortondocumenterror>
+      <retryenabled>false</retryenabled>
+      <timeout>5.55</timeout>
+      <route>default</route>
+      <maxpendingdocs>100</maxpendingdocs>
+      <http-client-api>
+        <threadpool>
+          <max-threads>50</max-threads>
+          <min-threads>10</min-threads>
+          <queue-size>1000</queue-size>
+        </threadpool>
+      </http-client-api>
+    </document-api>
+
+    <search>
+      <binding>http://*/mysearch/</binding>
+      <searcher id='outer-searcher' />
+      <chain id='common'>
+        <searcher id='outer-searcher' />
+        <searcher id='inner-searcher' />
+      </chain>
+
+      <provider id='yca-provider' type='vespa'>
+        <nodes>
+          <node host='sourcehost' port='12'/>
+        </nodes>
+      </provider>
+
+      <chain id="parentchain" searchers="one two">
+        <searcher id="three" />
+        <inherits>
+          <chain id="trope"/>
+          <chain id="kanoo"/>
+          <exclude id="notneededsearcher"/>
+        </inherits>
+      </chain>
+
+      <chain id="achain" searchers="asearcher anothersearcher" inherits="wonkaparentchain" excludes="notneededsearcher"/>
+
+      <threadpool>
+        <max-threads>500</max-threads>
+        <min-threads>500</min-threads>
+        <queue-size>0</queue-size>
+      </threadpool>
+    </search>
+
+    <processing>
+      <processor id='processor1' class='com.yahoo.test.Processor1' />
+      <chain id='default'>
+        <processor idref='processor1'/>
+        <processor id='processor2' class='com.yahoo.test.Processor2'/>
+      </chain>
+    </processing>
+
+    <handler id="bla" class="foo" bundle="bar" />
+    <handler id="bla2" class="foo$innerclass" bundle="bar" />
+    <handler id="bla2$innerclass" bundle="bar" />
+    <config name="foo">
+      <intVal>0</intVal>
+      <basicstruct>
+        <bsInt>1</bsInt>
+        <bsString>Hello</bsString>
+      </basicstruct>
+    </config>
+
+    <handler id="jdisc-handler">
+      <binding>http://*:*/HelloWorld</binding>
+      <binding>http://*:*/Status</binding>
+      <component id="injected-to-handler">
+        <config name="foo"/>
+      </component>
+    </handler>
+
+    <server id="server-provider">
+
+    </server>
+
+    <nodes jvm-options="-XX:+PrintGCDetails -XX:+PrintGCTimeStamps">
+      <environment-variables>
+        <TEST_VAR>7</TEST_VAR>
+      </environment-variables>
+      <node hostalias="host1" />
+    </nodes>
+
+    <clients>
+      <client id="client1" permissions="read,write">
+        <certificate file="security/file.pem" />
+      </client>
+      <client id="client2" permissions="write">
+        <certificate file="security/file1.pem" />
+        <certificate file="security/file2.pem" />
+      </client>
+    </clients>
+
+    <document-processing>
+      <chain id="common">
+        <documentprocessor id="CommonDocproc" class="com.yahoo.vespatest.ExtraHitDocumentProcessor">
+          <config name="com.yahoo.vespatest.extra-hit">
+            <exampleString>A docproc for all clusters</exampleString>
+          </config>
+        </documentprocessor>
+      </chain>
+      <chain id="cluster1">
+        <documentprocessor id="Cluster1Docproc" class="com.yahoo.vespatest.ExtraHitDocumentProcessor">
+          <config name="com.yahoo.vespatest.extra-hit">
+            <exampleString>Docproc only for cluster1</exampleString>
+          </config>
+        </documentprocessor>
+      </chain>
+    </document-processing>
+
+  </container>
+
+  <container id='qrsCluster_2' version='1.0'>
+    <secret-store type="cloud">
+      <store id="foo">
+        <aws-parameter-store account="foo" aws-region="us-east-1"/>
+      </store>
+    </secret-store>
+  </container>
+</services>

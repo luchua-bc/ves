@@ -1,0 +1,16 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=vespa.config.search
+
+defaultsummaryid int default=-1
+
+usev8geopositions bool default=false
+
+classes[].id int
+classes[].name string
+classes[].omitsummaryfeatures bool default=false
+classes[].fields[].name string
+# The name of the command that is writing this field.
+# See docsumconfig.cpp for all supported commands (DocsumFieldWriter implementations).
+classes[].fields[].command string default=""
+# The name of the source field used by the command.
+classes[].fields[].source string default=""

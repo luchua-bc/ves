@@ -1,0 +1,8 @@
+<!-- Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root. -->
+<container version="1.0">
+    <component id="com.yahoo.example.MyComponent" bundle="basic-application">
+        <config name="example.my-component">
+            <myFile>my-files/my-file.txt</myFile>
+        </config>
+    </component>
+</container>

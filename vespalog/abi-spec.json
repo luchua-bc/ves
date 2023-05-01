@@ -1,0 +1,124 @@
+{
+  "com.yahoo.log.InvalidLogFormatException" : {
+    "superClass" : "java.lang.Exception",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public void <init>(java.lang.String)",
+      "public void <init>(java.lang.String, java.lang.Throwable)",
+      "public void <init>()"
+    ],
+    "fields" : [ ]
+  },
+  "com.yahoo.log.LogFileDb" : {
+    "superClass" : "java.lang.Object",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public void <init>()",
+      "public static boolean nowLoggingTo(java.lang.String)"
+    ],
+    "fields" : [ ]
+  },
+  "com.yahoo.log.LogLevel" : {
+    "superClass" : "java.util.logging.Level",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public static java.util.logging.Level parse(java.lang.String)",
+      "public static java.util.logging.Level getVespaLogLevel(java.util.logging.Level)",
+      "public static java.util.Map getLevels()"
+    ],
+    "fields" : [
+      "public static final int IntValEVENT",
+      "public static final int IntValFATAL",
+      "public static final int IntValERROR",
+      "public static final int IntValUNKNOWN",
+      "public static final int IntValSEVERE",
+      "public static final int IntValWARNING",
+      "public static final int IntValINFO",
+      "public static final int IntValCONFIG",
+      "public static final int IntValDEBUG",
+      "public static final int IntValFINE",
+      "public static final int IntValFINER",
+      "public static final int IntValFINEST",
+      "public static final int IntValSPAM",
+      "public static final int LogCtlFATAL",
+      "public static final int LogCtlERROR",
+      "public static final int LogCtlWARNING",
+      "public static final int LogCtlCONFIG",
+      "public static final int LogCtlINFO",
+      "public static final int LogCtlEVENT",
+      "public static final int LogCtlDEBUG",
+      "public static final int LogCtlSPAM",
+      "public static final int LogCtlNumLevels",
+      "public static com.yahoo.log.LogLevel UNKNOWN",
+      "public static com.yahoo.log.LogLevel EVENT",
+      "public static com.yahoo.log.LogLevel FATAL",
+      "public static com.yahoo.log.LogLevel ERROR",
+      "public static com.yahoo.log.LogLevel DEBUG",
+      "public static com.yahoo.log.LogLevel SPAM"
+    ]
+  },
+  "com.yahoo.log.LogMessage" : {
+    "superClass" : "java.lang.Object",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public static com.yahoo.log.LogMessage of(java.time.Instant, java.lang.String, long, long, java.lang.String, java.lang.String, java.util.logging.Level, java.lang.String)",
+      "public java.time.Instant getTimestamp()",
+      "public java.lang.String getHost()",
+      "public long getProcessId()",
+      "public java.util.OptionalLong getThreadId()",
+      "public java.lang.String getService()",
+      "public java.lang.String getComponent()",
+      "public java.util.logging.Level getLevel()",
+      "public java.lang.String getPayload()",
+      "public static com.yahoo.log.LogMessage parseNativeFormat(java.lang.String)",
+      "public com.yahoo.log.event.Event getEvent()",
+      "public java.lang.String toString()",
+      "public boolean equals(java.lang.Object)",
+      "public int hashCode()"
+    ],
+    "fields" : [ ]
+  },
+  "com.yahoo.log.LogMessageTimeComparator" : {
+    "superClass" : "java.lang.Object",
+    "interfaces" : [
+      "java.util.Comparator",
+      "java.io.Serializable"
+    ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public void <init>()",
+      "public void <init>(boolean)",
+      "public int compare(com.yahoo.log.LogMessage, com.yahoo.log.LogMessage)",
+      "public bridge synthetic int compare(java.lang.Object, java.lang.Object)"
+    ],
+    "fields" : [ ]
+  },
+  "com.yahoo.log.LogSetup" : {
+    "superClass" : "java.lang.Object",
+    "interfaces" : [ ],
+    "attributes" : [
+      "public"
+    ],
+    "methods" : [
+      "public void <init>()",
+      "public static void clearHandlers()",
+      "public static void initVespaLogging(java.lang.String)",
+      "public static void cleanup()"
+    ],
+    "fields" : [ ]
+  }
+}

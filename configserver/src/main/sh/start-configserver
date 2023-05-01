@@ -1,0 +1,203 @@
+#!/bin/sh
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+# BEGIN environment bootstrap section
+# Do not edit between here and END as this section should stay identical in all scripts
+
+findpath () {
+    myname=${0}
+    mypath=${myname%/*}
+    myname=${myname##*/}
+    empty_if_start_slash=${mypath%%/*}
+    if [ "${empty_if_start_slash}" ]; then
+        mypath=$(pwd)/${mypath}
+    fi
+    if [ "$mypath" ] && [ -d "$mypath" ]; then
+        return
+    fi
+    mypath=$(pwd)
+    if [ -f "${mypath}/${myname}" ]; then
+        return
+    fi
+    echo "FATAL: Could not figure out the path where $myname lives from $0"
+    exit 1
+}
+
+COMMON_ENV=libexec/vespa/common-env.sh
+
+source_common_env () {
+    if [ "$VESPA_HOME" ] && [ -d "$VESPA_HOME" ]; then
+        export VESPA_HOME
+        common_env=$VESPA_HOME/$COMMON_ENV
+        if [ -f "$common_env" ]; then
+            . $common_env
+            return
+        fi
+    fi
+    return 1
+}
+
+findroot () {
+    source_common_env && return
+    if [ "$VESPA_HOME" ]; then
+        echo "FATAL: bad VESPA_HOME value '$VESPA_HOME'"
+        exit 1
+    fi
+    if [ "$ROOT" ] && [ -d "$ROOT" ]; then
+        VESPA_HOME="$ROOT"
+        source_common_env && return
+    fi
+    findpath
+    while [ "$mypath" ]; do
+        VESPA_HOME=${mypath}
+        source_common_env && return
+        mypath=${mypath%/*}
+    done
+    echo "FATAL: missing VESPA_HOME environment variable"
+    echo "Could not locate $COMMON_ENV anywhere"
+    exit 1
+}
+
+findhost () {
+    if [ "${VESPA_HOSTNAME}" = "" ]; then
+        VESPA_HOSTNAME=$(vespa-detect-hostname || hostname -f || hostname || echo "localhost") || exit 1
+    fi
+    validate="${VESPA_HOME}/bin/vespa-validate-hostname"
+    if [ -f "$validate" ]; then
+        "$validate" "${VESPA_HOSTNAME}" || exit 1
+    fi
+    export VESPA_HOSTNAME
+}
+
+findroot
+findhost
+
+ROOT=${VESPA_HOME%/}
+export ROOT
+
+# END environment bootstrap section
+
+cd ${VESPA_HOME} || { echo "Cannot cd to ${VESPA_HOME}" 1>&2; exit 1; }
+
+fixfile () {
+    if [ -f $1 ]; then
+        if [ "${VESPA_USER}" ] && [ "$(id -u)" -eq 0 ]; then
+            chown ${VESPA_USER} $1
+        fi
+        chmod 644 $1
+    fi
+}
+
+fixddir () {
+    if ! [ -d $1 ]; then
+       echo "Creating data directory $1"
+       mkdir -p $1 || exit 1
+    fi
+    if [ "${VESPA_USER}" ] && [ "$(id -u)" -eq 0 ]; then
+        chown ${VESPA_USER} $1
+    fi
+    chmod 755 $1
+}
+
+fixddir ${VESPA_HOME}/var/zookeeper
+fixddir ${VESPA_HOME}/var/zookeeper/conf
+fixfile ${VESPA_HOME}/var/zookeeper/conf/zookeeper.cfg
+fixfile ${VESPA_HOME}/var/zookeeper/myid
+fixddir ${VESPA_HOME}/var/zookeeper/version-2
+
+not_a_configserver () {
+    for hn in $(vespa-print-default configservers); do
+        if [ "$hn" = localhost ] || [ "$hn" = "${VESPA_HOSTNAME}" ]; then
+            return 1
+        fi
+    done
+    return 0
+}
+
+if not_a_configserver ; then
+    echo "Will not start config server, host ${VESPA_HOSTNAME}" \
+         "is not part of VESPA_CONFIGSERVERS: " $(vespa-print-default configservers)
+    exit 1
+fi
+
+fixlimits
+checkjava
+
+ZOOKEEPER_LOG_FILE_PREFIX="${VESPA_HOME}/logs/vespa/zookeeper.configserver"
+rm -f ZOOKEEPER_LOG_FILE_PREFIX*lck
+
+# common setup
+export VESPA_LOG_TARGET=file:${VESPA_HOME}/logs/vespa/vespa.log
+export VESPA_LOG_CONTROL_DIR="${VESPA_HOME}/var/db/vespa/logcontrol"
+export VESPA_LOG_CONTROL_FILE="${VESPA_HOME}/var/db/vespa/logcontrol/configserver.logcontrol"
+export VESPA_SERVICE_NAME=configserver
+export LD_LIBRARY_PATH=${VESPA_HOME}/lib64
+
+# Does not need fast allocation
+export MALLOC_ARENA_MAX=1
+
+vespa-run-as-vespa-user ${VESPA_HOME}/libexec/vespa/start-logd
+
+# stuff for the configserver process:
+
+appdir="${VESPA_HOME}/conf/configserver-app"
+pidfile="${VESPA_HOME}/var/run/configserver.pid"
+cfpfile="${VESPA_HOME}/var/jdisc_container/configserver.properties"
+bundlecachedir="${VESPA_HOME}/var/vespa/bundlecache/configserver"
+
+export JAVAVM_LD_PRELOAD=
+unset LD_PRELOAD
+# will be picked up by standalone-container:
+export standalone_jdisc_container__app_location=${appdir}
+export standalone_jdisc_container__deployment_profile=configserver
+
+# class path
+CP="${VESPA_HOME}/lib/jars/jdisc_core-jar-with-dependencies.jar"
+
+jvmoptions="$VESPA_CONFIGSERVER_JVMARGS"
+
+export LD_PRELOAD=${VESPA_HOME}/lib64/vespa/malloc/libvespamalloc.so
+
+rm -f $cfpfile
+vespa-run-as-vespa-user sh -c "printenv > $cfpfile"
+fixddir $bundlecachedir
+
+heap_min=$(get_min_heap_mb "${jvmoptions}" 128)
+heap_max=$(get_max_heap_mb "${jvmoptions}" 2048)
+vespa-run-as-vespa-user vespa-runserver -s ${VESPA_SERVICE_NAME} -r 30 -p $pidfile -- \
+	java \
+	-Xms${heap_min}m -Xmx${heap_max}m \
+        $(get_jvm_hugepage_settings $heap_max) \
+	-XX:+PreserveFramePointer \
+	-XX:+HeapDumpOnOutOfMemoryError \
+	-XX:HeapDumpPath="${VESPA_HOME}/var/crash" \
+	-XX:ErrorFile="${VESPA_HOME}/var/crash/hs_err_pid%p.log" \
+	-XX:+ExitOnOutOfMemoryError \
+	-XX:-OmitStackTraceInFastThrow \
+	-XX:MaxJavaStackTraceDepth=1000000 \
+	$jvmoptions \
+        --add-opens=java.base/java.io=ALL-UNNAMED \
+        --add-opens=java.base/java.lang=ALL-UNNAMED \
+        --add-opens=java.base/java.net=ALL-UNNAMED \
+        --add-opens=java.base/java.nio=ALL-UNNAMED \
+        --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED \
+        --add-opens=java.base/sun.security.ssl=ALL-UNNAMED  \
+	-Djava.io.tmpdir=${VESPA_HOME}/var/tmp \
+	-Djava.library.path=${VESPA_HOME}/lib64 \
+	-Djava.security.properties=${VESPA_HOME}/conf/vespa/java.security.override \
+	-Djava.awt.headless=true \
+	-Dsun.rmi.dgc.client.gcInterval=3600000 \
+	-Dsun.net.client.defaultConnectTimeout=5000 -Dsun.net.client.defaultReadTimeout=60000 \
+	-Djavax.net.ssl.keyStoreType=JKS \
+	-Djdk.tls.rejectClientInitiatedRenegotiation=true \
+	-Djdisc.config.file=$cfpfile \
+	-Djdisc.export.packages= \
+	-Djdisc.cache.path=$bundlecachedir \
+	-Djdisc.bundle.path=${VESPA_HOME}/lib/jars \
+	-Djdisc.logger.enabled=false \
+	-Djdisc.logger.level=WARNING \
+	-Djdisc.logger.tag=${VESPA_SERVICE_NAME} \
+	-Dfile.encoding=UTF-8 \
+	-Dzookeeper_log_file_prefix=${ZOOKEEPER_LOG_FILE_PREFIX} \
+	-cp "$CP" \
+	com.yahoo.jdisc.core.StandaloneMain standalone-container-jar-with-dependencies.jar

@@ -1,0 +1,39 @@
+// Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+#pragma once
+
+#include "i_maintenance_job.h"
+#include "imaintenancejobrunner.h"
+#include <vespa/vespalib/util/executor.h>
+#include <mutex>
+
+namespace proton {
+
+class MaintenanceJobRunner : public IMaintenanceJobRunner
+{
+private:
+    using Mutex = std::mutex;
+    using Guard = std::lock_guard<Mutex>;
+
+    vespalib::Executor  &_executor;
+    IMaintenanceJob::UP  _job;
+    bool                 _stopped;
+    bool                 _queued;
+    bool                 _running;
+    mutable Mutex        _lock;
+
+    void addExecutorTask();
+    void runJobInExecutor();
+    
+public:
+    using SP = std::shared_ptr<MaintenanceJobRunner>;
+
+    MaintenanceJobRunner(vespalib::Executor &executor, IMaintenanceJob::UP job);
+    void run() override;
+    void stop();
+    bool isRunnable() const;
+    const IMaintenanceJob &getJob() const { return *_job; }
+    IMaintenanceJob &getJob() { return *_job; }
+};
+
+} // namespace proton

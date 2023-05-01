@@ -1,0 +1,13 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+# Reindexing status per document type, for a Vespa application
+
+namespace=vespa.config.content.reindexing
+
+# Whether reindexing should run at all
+enabled                bool default=false
+
+# Epoch millis after which latest reprocessing may begin, per document type, per cluster
+clusters{}.documentTypes{}.readyAtMillis long
+
+# Window size increment used for the dynamic throttling policy of the reindexing visitor session for each type
+clusters{}.documentTypes{}.speed double default=0.2

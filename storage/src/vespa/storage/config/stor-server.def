@@ -1,0 +1,113 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+namespace=vespa.config.content.core
+
+## Root directory for all files related to this storage node.
+## Will typically be "$VESPA_HOME/var/db/vespa/vds/<cluster>/<nodetype>/<index>
+root_folder string restart
+
+## VDS cluster
+cluster_name string default="storage" restart
+
+## The index of this node. Each node of the same type in the same cluster need
+## to have unique indexes. This should not be changed, as this is what we use
+## to identify the node, and to decide what data should be on it.
+node_index int default=0 restart
+
+## Set whether this is a distributor or a storage node. This will decide what
+## storage links are set up.
+is_distributor bool restart
+
+## Capacity of the node. How much data and load this node will get relative to
+## other nodes.
+node_capacity double default=1.0 restart
+
+## Capacity of the disks on this node. How much data and load will each disk
+## get relative to the other disks on this node.
+disk_capacity[] double restart
+
+## Reliability of this node. How much of the cluster redundancy factor can this
+## node make up for.
+node_reliability int default=1 restart
+
+## The upper bound of merges that any storage node can have active.
+## A merge operation will be chained through all nodes involved in the
+## merge, only actually starting the operation when every node has
+## allowed it to pass through.
+## NOTE: these config values are _not_ used if merge_throttling_policy.type
+## is configured to DYNAMIC (see below).
+max_merges_per_node int default=16
+max_merge_queue_size int default=100
+
+## Chooses the throttling policy used to control the active merge window size
+## of the MergeThrottler component.
+merge_throttling_policy.type enum { STATIC, DYNAMIC } default=STATIC
+## Only used if merge_throttling_policy.type == DYNAMIC:
+merge_throttling_policy.min_window_size int default=16
+merge_throttling_policy.max_window_size int default=128
+merge_throttling_policy.window_size_increment double default=2.0
+
+## If the persistence provider indicates that it has exhausted one or more
+## of its internal resources during a mutating operation, new merges will
+## be bounced for this duration. Not allowing further merges helps take
+## load off the node while it e.g. compacts its data stores or memory in
+## the background.
+## Note: this does not affect merges where the current node is marked as
+## "source only", as merges do not cause mutations on such nodes.
+resource_exhaustion_merge_back_pressure_duration_secs double default=30.0
+
+## If true, received merges that have already been accepted into the pending
+## merge window on at least one node will not be restricted by the configured
+## max_merge_queue_size limit. They will be allowed to enqueue regardless of
+## the current queue size. This avoids wasting the time spent being accepted
+## into merge windows, which would happen if the merge were to be bounced with
+## a busy-reply that would subsequently be unwound through the entire merge chain.
+disable_queue_limits_for_chained_merges bool default=true
+
+## Whether the deadlock detector should be enabled or not. If disabled, it will
+## still run, but it will never actually abort the process it is running in.
+enable_dead_lock_detector bool default=false
+
+## Whether to enable deadlock detector warnings in log or not. If enabled,
+## warnings will be written even if dead lock detecting is not enabled.
+enable_dead_lock_detector_warnings bool default=true
+
+## Each thread registers how often it will at minimum register ticks (given that
+## the system is not overloaded. If you are running Vespa on overloaded nodes,
+## you can use this slack timeout to add to the thread timeouts in order to
+## allow for more slack before dead lock detector kicks in. The value is in seconds.
+dead_lock_detector_timeout_slack double default=240
+
+## If set to 0, storage will attempt to auto-detect the number of VDS mount
+## points to use. If set to a number, force this number. This number only makes
+## sense on a storage node of course
+disk_count int default=0  restart
+
+## Configure persistence provider. Temporary here to test.
+persistence_provider.type enum {STORAGE, DUMMY, RPC } default=STORAGE restart
+persistence_provider.rpc.connectspec string default="tcp/localhost:27777" restart
+
+## Whether or not to use the new metadata flow implementation. Default to not
+## as it is currently in development and not even functional
+switch_new_meta_data_flow bool default=false restart
+
+## When the content layer receives a set of changed buckets from the persistence
+## layer, it must recheck all of these. Each such recheck results in an
+## operation scheduled against the persistence queust and since the total
+## number of buckets to recheck may reach hundreds of thousands in a large
+## system, we send these in chunks to avoid saturating the queues with
+## operations.
+bucket_rechecking_chunk_size int default=100
+
+## If greater than zero, simulates added latency caused by CPU processing during
+## full bucket info requests. The latency is added per batch of operations processed.
+## Only useful for testing!
+simulated_bucket_request_latency_msec int default=0
+
+## If set, content node processes will use a B-tree backed bucket database implementation
+## instead of the legacy Judy-based implementation.
+use_content_node_btree_bucket_db bool default=true restart
+
+## If non-zero, the bucket DB will be striped into 2^bits sub-databases, each handling
+## a disjoint subset of the node's buckets, in order to reduce locking contention.
+## Max value is unspecified, but will be clamped internally.
+content_node_bucket_db_stripe_bits int default=4 restart

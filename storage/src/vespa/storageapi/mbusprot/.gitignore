@@ -1,0 +1,10 @@
+*.lo
+.*.swp
+.depend
+.depend.NEW
+.deps
+.libs
+Makefile
+*.pb.h
+*.pb.cc
+

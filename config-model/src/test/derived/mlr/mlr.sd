@@ -1,0 +1,18 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+schema mlr {
+
+  document mlr {
+
+    field a type string {
+      indexing: index | summary | attribute
+    }
+
+    field b type string {
+      indexing: index | summary
+    }
+
+    field ranklog type string {
+      indexing: attribute
+    }
+  }
+}

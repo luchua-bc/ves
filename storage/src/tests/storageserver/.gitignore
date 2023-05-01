@@ -1,0 +1,14 @@
+*.So
+*.lo
+*.o
+.*.swp
+.config.log
+.depend
+.depend.NEW
+.deps
+.libs
+Makefile
+filestorage
+testrunner
+testrunner.core
+storage_storageserver_gtest_runner_app

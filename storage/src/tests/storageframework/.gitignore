@@ -1,0 +1,6 @@
+/.depend
+/Makefile
+/test.vlog
+/testrunner
+storageframework_gtest_runner_app
+storageframework_testrunner_app

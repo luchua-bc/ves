@@ -1,0 +1,35 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+search stemmingsetting {
+
+  document stemmingsetting {
+
+    field artist type string {
+      indexing: index
+      stemming: shortest
+    }
+
+    field title type string {
+      indexing: index
+      stemming: none
+    }
+
+    field song type string {
+      indexing: index
+      stemming: multiple
+    }
+
+    field track type string {
+      stemming: shortest
+    }
+
+    field backward type string {
+      indexing: index
+      stemming: shortest
+    }
+  }
+
+  index default {
+     stemming: shortest
+  }
+
+}
